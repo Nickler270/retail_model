@@ -1,0 +1,9 @@
+Forecast:
+Product A: 20.82
+Product B: 36.32
+Product C: 9.60
+
+Allocation:
+Product A: 15.82
+Product B: 31.32
+Product C: 4.60

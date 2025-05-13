@@ -7,7 +7,7 @@ import streamlit as st
 st.set_page_config(
     page_title="Retail Resource Allocation",  
     page_icon="public/webgav icon_dark.png", 
-    layout="wide", 
+    layout="centered", 
     initial_sidebar_state="auto" 
 )
 
