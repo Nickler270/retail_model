@@ -7,7 +7,8 @@ A Python-based model that helps optimize resource allocation in a retail environ
 To install all the necessary dependencies, run:
 
 ```bash
+//launch venv and run 
+
 pip install -r requirements.txt
 
-launch venv and run 
 streamlit run dashboard.py
