@@ -20,19 +20,43 @@ def allocate_resources(forecasted_demand):
     return allocation
 
 # Results PLOT
-def plot_forecast(sales_data, forecast, filename):
+def plot_charts(sales_data, forecast, base_filename):
+    plt.style.use("seaborn-v0_8")
+    
+    # Line Plot
     plt.figure(figsize=(10, 6))
     for product in sales_data:
         plt.plot(sales_data[product], label=f"{product} Actual", linewidth=2)
         plt.plot(forecast[product], linestyle="--", label=f"{product} Forecast")
-    plt.title("Forecast vs Actual")
+    plt.title("Line Chart - Forecast vs Actual")
     plt.xlabel("Day")
     plt.ylabel("Sales")
     plt.legend()
-    plt.grid(True)
     plt.tight_layout()
-    plt.savefig(filename)
+    plt.savefig(f"{base_filename}_line.png")
     plt.close()
+
+    # Pie Chart (based on total sales per product)
+    plt.figure(figsize=(8, 6))
+    totals = {product: sum(values) for product, values in sales_data.items()}
+    plt.pie(totals.values(), labels=totals.keys(), autopct="%1.1f%%", startangle=140)
+    plt.title("Pie Chart - Total Sales Distribution")
+    plt.tight_layout()
+    plt.savefig(f"{base_filename}_pie.png")
+    plt.close()
+
+    # Histogram (distribution of last 7 days)
+    plt.figure(figsize=(10, 6))
+    for product, values in sales_data.items():
+        plt.hist(values[-7:], bins=7, alpha=0.6, label=product)
+    plt.title("Histogram - Last 7 Days Sales Distribution")
+    plt.xlabel("Units Sold")
+    plt.ylabel("Frequency")
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(f"{base_filename}_hist.png")
+    plt.close()
+
 
 def load_data(file_path=None):
     if file_path and os.path.exists(file_path):
@@ -86,11 +110,14 @@ def main(file_path=None):
         for k, v in allocation.items():
             f.write(f"{k}: {v:.2f}\n")
 
-    plot_forecast(sales_data, forecast, plot_file)
+    plot_charts(sales_data, forecast, f"results/forecast_plot_{timestamp}")
 
     print(f"RESULT_FILE::{result_file}")
-    print(f"PLOT_FILE::{plot_file}")
+    print(f"PLOT_FILE_LINE::results/forecast_plot_{timestamp}_line.png")
+    print(f"PLOT_FILE_PIE::results/forecast_plot_{timestamp}_pie.png")
+    print(f"PLOT_FILE_HIST::results/forecast_plot_{timestamp}_hist.png")
 
+    
 if __name__ == "__main__":
     input_file = sys.argv[1] if len(sys.argv) > 1 else None
     main(input_file)
