@@ -45,34 +45,31 @@ st.markdown("""
 This approach enhances decision-making by improving accuracy, efficiency, and adaptability in resource planning.
 """)
 
-# File upload section
+# upld
 st.markdown("### Upload Data")
 uploaded_file = st.file_uploader("Choose a CSV or JSON file", type=["csv", "json"])
 
 if uploaded_file is not None:
-    # Check file type and load data accordingly
     if uploaded_file.type == "text/csv":
         data = pd.read_csv(uploaded_file)
         st.write("CSV File Loaded:")
-        st.dataframe(data.head())  # Display the first few rows of the data
+        st.dataframe(data.head())  
     elif uploaded_file.type == "application/json":
         data = json.load(uploaded_file)
         st.write("JSON File Loaded:")
-        st.json(data)  # Display the loaded JSON data
+        st.json(data)  
 
 if st.button("Run Model"):
     if uploaded_file is None:
         st.warning("No file uploaded, proceeding with random data generation.")
-        file_path = None  # Use randomizer if no file is uploaded
+        file_path = None 
     else:
-        # Save the uploaded file to a temporary location
         file_path = os.path.join("temp", uploaded_file.name)
         os.makedirs("temp", exist_ok=True)
         with open(file_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
 
     with st.spinner("Running model..."):
-        # Run the model, passing the file_path to use uploaded data or random data
         result = subprocess.run(
             [sys.executable, "main.py", file_path] if file_path else [sys.executable, "main.py"],
             capture_output=True,
