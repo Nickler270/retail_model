@@ -92,16 +92,15 @@ if st.button("Run Model"):
                 elif "PLOT_FILE_HIST::" in line:
                     chart_files["Histogram"] = line.split("::")[1].strip()
 
-            # Store results and chart files persistently in session_state
+            # persistently in session_state
             st.session_state["chart_files"] = chart_files
             st.session_state["result_path"] = result_path
-            st.session_state["chart_index"] = 0  # Reset to first chart
+            st.session_state["chart_index"] = 0 
 
         else:
             st.error("Model failed to run")
             st.text(result.stderr)
 
-# Use saved results if available
 if "chart_files" in st.session_state and "result_path" in st.session_state:
     chart_types = list(st.session_state["chart_files"].keys())
 
