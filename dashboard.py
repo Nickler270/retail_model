@@ -1,8 +1,9 @@
-# -*- coding: utf-8 -*-
 import os
 import subprocess
 import sys
 import streamlit as st
+import pandas as pd
+import json
 
 st.set_page_config(
     page_title="Retail Resource Allocation",  
@@ -44,10 +45,39 @@ st.markdown("""
 This approach enhances decision-making by improving accuracy, efficiency, and adaptability in resource planning.
 """)
 
+# File upload section
+st.markdown("### Upload Data")
+uploaded_file = st.file_uploader("Choose a CSV or JSON file", type=["csv", "json"])
+
+if uploaded_file is not None:
+    # Check file type and load data accordingly
+    if uploaded_file.type == "text/csv":
+        data = pd.read_csv(uploaded_file)
+        st.write("CSV File Loaded:")
+        st.dataframe(data.head())  # Display the first few rows of the data
+    elif uploaded_file.type == "application/json":
+        data = json.load(uploaded_file)
+        st.write("JSON File Loaded:")
+        st.json(data)  # Display the loaded JSON data
 
 if st.button("Run Model"):
+    if uploaded_file is None:
+        st.warning("No file uploaded, proceeding with random data generation.")
+        file_path = None  # Use randomizer if no file is uploaded
+    else:
+        # Save the uploaded file to a temporary location
+        file_path = os.path.join("temp", uploaded_file.name)
+        os.makedirs("temp", exist_ok=True)
+        with open(file_path, "wb") as f:
+            f.write(uploaded_file.getbuffer())
+
     with st.spinner("Running model..."):
-        result = subprocess.run([sys.executable, "main.py"], capture_output=True, text=True)
+        # Run the model, passing the file_path to use uploaded data or random data
+        result = subprocess.run(
+            [sys.executable, "main.py", file_path] if file_path else [sys.executable, "main.py"],
+            capture_output=True,
+            text=True
+        )
 
         if result.returncode == 0:
             st.success("Model ran successfully!")
@@ -83,32 +113,46 @@ if st.button("Run Model"):
                         mime="image/png"
                     )
 
-            st.markdown("""
-            <div style="
-                background-color: #f9f9f9;
-                border-left: 4px solid #4CAF50;
-                padding: 1rem;
-                margin-bottom: 1rem;
-                border-radius: 6px;
-                font-size: 0.95rem;
-                color: black
-            ">
+                st.markdown(f"""
+                <div style="
+                    background-color: #f9f9f9;
+                    border-left: 4px solid #4CAF50;
+                    padding: 1rem;
+                    margin-bottom: 1rem;
+                    border-radius: 6px;
+                    font-size: 0.95rem;
+                    color: black
+                ">
 
-            ### Forecasting Results
+                ### Forecasting Conclusion & Business Implications
 
-            A representation of synthetic sales data and corresponding forecasted values for three products—Product A, Product B, and Product C—over a 30-day period.
+                The chart above shows forecasted demand and simulated sales trends over a 30-day period for selected retail products. Demand patterns were generated using historical-style synthetic data, allowing us to evaluate planning strategies even without real-world inputs.
 
-            The solid lines represent actual daily sales, while the dashed lines indicate the model's forecasted average demand using exponential smoothing. Product B shows the highest variability in sales, while Product C remains relatively stable. The forecasts effectively capture the central trend for each product, providing a basis for resource planning decisions.
+                #### Key Observations:
+                - Products with **high and volatile demand** (e.g., fresh goods or daily essentials) require **frequent restocking** and potentially **shorter replenishment cycles** to prevent stockouts.  
+                *Action:* Consider dynamic ordering and keeping buffer inventory to handle variability.
 
-            This output supports stock allocation and simulation by providing expected demand levels for future operational periods.
+                - Products with **moderate and steady demand** benefit from **scheduled procurement** and tighter inventory control.  
+                *Action:* Forecasts can be used to reduce excess holding without risking availability.
 
-            </div>
-            """, unsafe_allow_html=True)
+                - Products showing **low, consistent sales** are ideal for **minimal stock strategies**.  
+                *Action:* Biweekly or monthly restocking may suffice, reducing storage and spoilage risk.
+
+                #### Operational Insight:
+                This forecasting model enables:
+                - Better alignment between **supply and demand**.
+                - Reduction in **waste and stockouts**.
+                - More efficient **use of storage space and budget**.
+                - **Adaptable planning** even when working with incomplete or generated datasets.
+
+                By integrating forecasting and optimization, retail managers can make smarter, data-informed resource decisions that scale across changing sales patterns and unpredictable demand.
+
+                </div>
+                """, unsafe_allow_html=True)
 
         else:
             st.error("Model failed to run")
             st.text(result.stderr)
-
 
 st.markdown("""
 <hr style="margin-top: 3rem; margin-bottom: 1rem;"/>

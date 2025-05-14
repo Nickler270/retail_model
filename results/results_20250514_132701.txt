@@ -1,0 +1,9 @@
+Forecast (7-day avg):
+Product A: 18.00
+Product B: 35.90
+Product C: 9.78
+
+Resource Allocation:
+Product A: 13.00
+Product B: 30.90
+Product C: 4.78
